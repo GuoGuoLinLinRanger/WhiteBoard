@@ -10,6 +10,14 @@ cd "$(git rev-parse --show-toplevel)"
 QUEUE_DIR="queue"
 LOG="activity.log"
 
+# Occasionally skip a day so the graph isn't suspiciously perfect.
+# ~5% chance => roughly 1-2 missed days per month. (Manual runs still skip too.)
+SKIP_CHANCE=5
+if [ "$(( RANDOM % 100 ))" -lt "$SKIP_CHANCE" ]; then
+  echo "rest day -> skipping commits today"
+  exit 0
+fi
+
 # Build a plausible commit message from a file's name/extension.
 realistic_msg() {
   local f="$1" base name ext
