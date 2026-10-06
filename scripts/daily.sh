@@ -10,11 +10,23 @@ cd "$(git rev-parse --show-toplevel)"
 QUEUE_DIR="queue"
 LOG="activity.log"
 
-# Occasionally skip a day so the graph isn't suspiciously perfect.
-# ~5% chance => roughly 1-2 missed days per month. (Manual runs still skip too.)
-SKIP_CHANCE=5
-if [ "$(( RANDOM % 100 ))" -lt "$SKIP_CHANCE" ]; then
-  echo "rest day -> skipping commits today"
+# Skip exactly 1-2 "rest days" each month, chosen pseudo-randomly but
+# deterministically from the month (runner is stateless, and a real skip must
+# leave no commit -- so we can't persist a counter). Hash YYYY-MM -> pick days.
+YM="$(date -u +%Y-%m)"
+TODAY_DOM="$(( 10#$(date -u +%d) ))"
+DIM="$(date -u -d "$YM-01 +1 month -1 day" +%d 2>/dev/null || echo 28)"; DIM="$(( 10#$DIM ))"
+H="$(printf '%s' "$YM" | md5sum | cut -c1-8)"
+HN=$(( 16#$H ))
+SKIP_COUNT=$(( 1 + (HN % 2) ))                 # 1 or 2 rest days this month
+skip_today=0
+for k in $(seq 0 $(( SKIP_COUNT - 1 ))); do
+  HK=$(( 16#$(printf '%s-%s' "$YM" "$k" | md5sum | cut -c1-8) ))
+  DAY=$(( (HK % DIM) + 1 ))
+  [ "$TODAY_DOM" -eq "$DAY" ] && skip_today=1
+done
+if [ "$skip_today" -eq 1 ]; then
+  echo "rest day ($YM day $TODAY_DOM) -> skipping commits today"
   exit 0
 fi
 
