@@ -31,8 +31,8 @@ realistic_msg() {
   esac
 }
 
-# How many files to reveal today (1-4), for an organic-looking graph.
-MAX_PER_DAY=$(( (RANDOM % 4) + 1 ))
+# How many commits to make today (3-8), for a fuller, organic-looking graph.
+MAX_PER_DAY=$(( (RANDOM % 6) + 3 ))
 
 mapfile -t files < <(find "$QUEUE_DIR" -type f 2>/dev/null | LC_ALL=C sort | head -n "$MAX_PER_DAY")
 
@@ -51,10 +51,13 @@ if [ "${#files[@]}" -gt 0 ]; then
   # Tidy any now-empty queue folders (git doesn't track empty dirs).
   find "$QUEUE_DIR" -type d -empty -delete 2>/dev/null || true
 else
-  echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ') - update" >> "$LOG"
-  git add "$LOG"
-  git commit -q -m "chore: update activity log ($(date -u '+%Y-%m-%d'))"
-  echo "queue empty -> committed log fallback"
+  # Queue empty: make MAX_PER_DAY log commits so the day still looks active.
+  for i in $(seq 1 "$MAX_PER_DAY"); do
+    echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ') - update #$i" >> "$LOG"
+    git add "$LOG"
+    git commit -q -m "chore: update activity log ($(date -u '+%Y-%m-%d') #$i)"
+  done
+  echo "queue empty -> committed $MAX_PER_DAY log fallbacks"
 fi
 
 git push
