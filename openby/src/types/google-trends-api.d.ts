@@ -17,3 +17,4 @@ declare module "google-trends-api" {
     callback?: (err: Error | null, results: string) => void
   ): Promise<string>;
 }
+// last build 2026-11-03T16:08:53Z
