@@ -31,3 +31,4 @@ export async function searchProductImage(
   const url = data.photos?.[0]?.src?.large ?? data.photos?.[0]?.src?.medium ?? data.photos?.[0]?.src?.original ?? null;
   return url ?? null;
 }
+// last build 2026-11-03T16:08:53Z
