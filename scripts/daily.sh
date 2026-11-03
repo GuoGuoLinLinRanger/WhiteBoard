@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 # Daily GitHub activity bot.
 # Priority:
-#   1) If queue/ has files, "reveal" 1-4 of them into the repo (one realistic commit each).
-#   2) Otherwise, fall back to a small activity.log change.
+#   1) If queue/ has files, "reveal" a few of them into the repo (one realistic commit each).
+#   2) Otherwise, make realistic "maintenance" commits on files already in the repo.
 # Scoped git adds only -- never `git add -A` on the whole tree.
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
 QUEUE_DIR="queue"
-LOG="activity.log"
 
 # Skip exactly 1-2 "rest days" each month, chosen pseudo-randomly but
 # deterministically from the month (runner is stateless, and a real skip must
@@ -51,6 +50,48 @@ realistic_msg() {
   esac
 }
 
+# Realistic conventional-commit message for an edit to an existing file.
+work_msg() {
+  local f="$1" base name
+  base="$(basename "$f")"
+  name="${base%.*}"
+  local pool=(
+    "refactor: simplify ${name} logic"
+    "fix: handle edge case in ${name}"
+    "style: clean up formatting in ${name}"
+    "chore: minor cleanup in ${name}"
+    "perf: small optimization in ${name}"
+    "docs: clarify comments in ${name}"
+    "refactor: extract helper in ${name}"
+    "fix: address lint warning in ${name}"
+    "test: tweak coverage around ${name}"
+    "chore: tidy ${name}"
+  )
+  echo "${pool[$(( RANDOM % ${#pool[@]} ))]}"
+}
+
+# Apply a tiny, non-breaking in-place change to a file: refresh a managed
+# trailing comment (replaced each time, so files never bloat). Comment syntax
+# matches the file type so nothing breaks.
+maint_touch() {
+  local f="$1" base ext open close token stamp tmp
+  base="$(basename "$f")"
+  ext="${base##*.}"
+  case "$ext" in
+    css|scss|less) open="/*"; close=" */" ;;
+    md)            open="<!--"; close=" -->" ;;
+    *)             open="//"; close="" ;;
+  esac
+  token="last build"                       # stable marker to find/replace prior line
+  stamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  tmp="$f.bot.tmp"
+  grep -v "${token} " "$f" > "$tmp" 2>/dev/null || cp "$f" "$tmp"
+  # make sure there's a trailing newline before we append
+  if [ -s "$tmp" ] && [ -n "$(tail -c1 "$tmp")" ]; then printf '\n' >> "$tmp"; fi
+  printf '%s %s %s%s\n' "$open" "$token" "$stamp" "$close" >> "$tmp"
+  mv "$tmp" "$f"
+}
+
 # How many commits to make today (3-8), for a fuller, organic-looking graph.
 MAX_PER_DAY=$(( (RANDOM % 6) + 3 ))
 
@@ -71,13 +112,24 @@ if [ "${#files[@]}" -gt 0 ]; then
   # Tidy any now-empty queue folders (git doesn't track empty dirs).
   find "$QUEUE_DIR" -type d -empty -delete 2>/dev/null || true
 else
-  # Queue empty: make MAX_PER_DAY log commits so the day still looks active.
+  # Queue empty: make realistic "maintenance" commits on files already in the repo,
+  # so the activity reads like ongoing work instead of a timestamp log.
+  mapfile -t CAND < <(git ls-files \
+        '*.ts' '*.tsx' '*.js' '*.jsx' '*.mjs' '*.cjs' '*.css' '*.scss' '*.md' \
+      | grep -vE '(^|/)(queue|scripts)/' \
+      | grep -vE 'package-lock\.json$')
+  if [ "${#CAND[@]}" -eq 0 ]; then
+    echo "no candidate files to edit yet; nothing to do today"
+    exit 0
+  fi
+  made=0
   for i in $(seq 1 "$MAX_PER_DAY"); do
-    echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ') - update #$i" >> "$LOG"
-    git add "$LOG"
-    git commit -q -m "chore: update activity log ($(date -u '+%Y-%m-%d') #$i)"
+    f="${CAND[$(( RANDOM % ${#CAND[@]} ))]}"
+    maint_touch "$f"
+    git add "$f"
+    if git commit -q -m "$(work_msg "$f")"; then made=$(( made + 1 )); fi
   done
-  echo "queue empty -> committed $MAX_PER_DAY log fallbacks"
+  echo "queue empty -> made $made maintenance commits"
 fi
 
 git push
