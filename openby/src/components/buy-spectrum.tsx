@@ -125,4 +125,4 @@ export function BuySpectrum({ score, label = "Buy Now Score", explanation }: Buy
     </div>
   );
 }
-// last build 2026-11-03T16:08:53Z
+// last build 2026-11-05T20:26:00Z
