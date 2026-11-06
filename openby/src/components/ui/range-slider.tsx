@@ -136,4 +136,4 @@ export function RangeSlider({
     </div>
   );
 }
-// last build 2026-11-05T20:26:00Z
+// last build 2026-11-06T19:48:23Z
