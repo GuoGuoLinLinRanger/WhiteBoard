@@ -16,3 +16,4 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return <ProductPageContent product={product} />;
 }
+// last build 2026-11-06T19:48:23Z
