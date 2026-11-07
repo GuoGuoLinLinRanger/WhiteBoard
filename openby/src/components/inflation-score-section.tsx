@@ -159,4 +159,4 @@ export function InflationScoreSection({
     </section>
   );
 }
-// last build 2026-11-04T20:12:59Z
+// last build 2026-11-07T17:54:53Z
