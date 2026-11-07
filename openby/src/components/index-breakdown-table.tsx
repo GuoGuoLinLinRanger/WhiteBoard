@@ -221,3 +221,4 @@ export function IndexBreakdownTable({ breakdown, totalScore, calculatingSection 
     </div>
   );
 }
+// last build 2026-11-07T17:54:53Z
