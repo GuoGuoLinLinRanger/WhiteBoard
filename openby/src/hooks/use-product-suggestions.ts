@@ -49,4 +49,4 @@ export function useProductSuggestions(query: string) {
 
   return { suggestions, isLoading };
 }
-// last build 2026-11-09T22:49:56Z
+// last build 2026-11-12T20:36:56Z
