@@ -137,4 +137,4 @@ export async function generate(
 
   return result.content;
 }
-// last build 2026-11-15T19:12:08Z
+// last build 2026-11-17T21:27:44Z
