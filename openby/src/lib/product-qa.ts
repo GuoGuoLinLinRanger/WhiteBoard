@@ -19,3 +19,4 @@ export const PRODUCT_QA_MODEL_LOGOS: Record<ProductQAModelKey, string> = {
   gemini: "/gemini-logo.png",
   claude: "/claude-logo.png",
 };
+// last build 2026-11-21T19:53:30Z
