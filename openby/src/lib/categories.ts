@@ -84,4 +84,4 @@ export const CATEGORIES = [
       "Smart TVs and displays. From compact to home theater setups.",
   },
 ] as const;
-// last build 2026-11-15T19:12:08Z
+// last build 2026-11-21T19:53:30Z
