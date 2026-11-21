@@ -48,4 +48,4 @@ export function PriceChart({ data }: { data: PricePoint[] }) {
     </div>
   );
 }
-// last build 2026-11-19T21:07:23Z
+// last build 2026-11-21T19:53:30Z
