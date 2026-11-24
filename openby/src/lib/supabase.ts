@@ -13,4 +13,4 @@ export function getSupabaseAdmin(): SupabaseClient {
   }
   return supabase;
 }
-// last build 2026-11-10T20:09:09Z
+// last build 2026-11-24T00:31:28Z
