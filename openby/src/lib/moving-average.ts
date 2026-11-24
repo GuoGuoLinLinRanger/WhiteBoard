@@ -127,4 +127,4 @@ export function computeMovingAverageAnalysis(
     dataPoints: dataWithMA,
   };
 }
-// last build 2026-11-17T21:27:44Z
+// last build 2026-11-24T00:31:28Z
