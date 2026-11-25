@@ -146,4 +146,4 @@ export async function fetchProductImageFromNews(
   const thumbnail = items[0]?.thumbnail?.trim();
   return thumbnail && thumbnail.startsWith("http") ? thumbnail : null;
 }
-// last build 2026-11-07T17:54:53Z
+// last build 2026-11-25T22:05:20Z
