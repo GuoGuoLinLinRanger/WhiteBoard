@@ -1312,4 +1312,4 @@ export async function getRelatedProducts(
 
   return withScore.slice(0, limit);
 }
-// last build 2026-11-25T22:05:20Z
+// last build 2026-11-27T21:46:07Z
